@@ -1,5 +1,6 @@
 from typing import Union
 
+from sklearn.model_selection import train_test_split
 import pandas as pd
 import numpy as np
 import datasets
@@ -72,3 +73,13 @@ def load_data(
 
     return dataset
 
+
+def train_valid_split(
+  dataset_path: str    
+):
+  
+  dataset      = pd.read_csv(dataset_path)
+  train, valid = train_test_split(dataset, test_size = 0.1)
+
+  train.to_csv('data/train.csv', index = False)
+  valid.to_csv('data/valid.csv', index = False)
