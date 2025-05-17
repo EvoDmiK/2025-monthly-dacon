@@ -1,3 +1,5 @@
+from typing import Union
+
 import pandas as pd
 import numpy as np
 import datasets
@@ -6,12 +8,18 @@ from src.prompts import prompt_template, completion_template
 
 def prepare_prompt(
   row        : pd.Series, 
-  has_context: bool = False,
-  context_per: int  = 3
+  phase_type : str  = 'train',
+  context_per: int  = 3,
+  has_context: bool = False
 ):
   inputs  = [row[f'sentence_{idx}'] for idx in range(4)]
-  targets = [[row[f'answer_{idx}'], input_] \
-              for idx, input_ in enumerate(inputs)]
+
+  if phase_type == 'train':
+    targets = [[row[f'answer_{idx}'], input_] \
+                for idx, input_ in enumerate(inputs)]
+
+  else: targets = '' 
+
 
   if has_context:
       choices     = [False] * (10 - context_per) + [True] * context_per
@@ -32,7 +40,7 @@ def load_data(
                 dataset_path: str,
                 phase_type  : str = 'train',
                 **kwargs
-            ) -> datasets.Dataset:
+            ) -> Union[datasets.Dataset, pd.DataFrame]:
     
     has_context = kwargs.get('has_context', True)
     context_per = kwargs.get('context_per', 3)
@@ -42,20 +50,25 @@ def load_data(
     train_dataset_path = f'{dataset_path}/{phase_type}.csv'
     train_df           = pd.read_csv(train_dataset_path)
 
-    dataset = {'prompt' : [], 'completion' : []}
+    dataset = {'prompt' : [], 'completion' : []} 
+
     for row in train_df.iterrows():
-        _, row   = row
+        _     ,        row  = row
         prompt, completion  = prepare_prompt(
                                                 row, 
                                                 has_context = has_context, 
-                                                context_per = context_per
+                                                context_per = context_per,
+                                                phase_type  = phase_type
                                             )
+
         dataset['prompt'].append(prompt)
         dataset['completion'].append(completion)
-
+      
     dataset = pd.DataFrame(dataset)
-    dataset      = datasets.Dataset.from_pandas(dataset).shuffle(seed)
-    dataset      = dataset.train_test_split(test_size = test_size)
+
+    if phase_type == 'train':
+      dataset      = datasets.Dataset.from_pandas(dataset).shuffle(seed)
+      dataset      = dataset.train_test_split(test_size = test_size)
 
     return dataset
 
