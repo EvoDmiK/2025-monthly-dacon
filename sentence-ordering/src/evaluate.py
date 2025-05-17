@@ -18,7 +18,7 @@ def merge_n_unload(
   tuned_model = PeftModel.from_pretrained(base_model, adapter_path)
   tuned_model = tuned_model.merge_and_unload()
 
-  tokenizer  = AutoTokenizer.from_pretrained(adapter_path) 
+  tokenizer  = AutoTokenizer.from_pretrained(f'{adapter_path}/tokenizer') 
   pipeline_  = pipeline('text-generation', model = tuned_model,
                         tokenizer = tokenizer, max_new_tokens = 256)
 
