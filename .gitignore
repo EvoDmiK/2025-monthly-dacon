@@ -1,1 +1,5 @@
-**/**/output/runs
+**/**/merged_model
+**/**/__pycache__
+**/**/output/
+**/wandb/*
+**/.env
