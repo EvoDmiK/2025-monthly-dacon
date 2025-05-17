@@ -1,6 +1,7 @@
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
 
+from src.evaluate import sample_evaluate
 from src.train import prepare_trainer
 from src.data import load_data
 
@@ -28,5 +29,11 @@ def train(**kwargs):
 
 if __name__ == '__main__':
 
-    kwargs = {'has_context' : True}
-    train(**kwargs)
+    # kwargs = {'has_context' : True}
+    # train(**kwargs)
+
+    result = sample_evaluate(
+                                base_model   = model, 
+                                adapter_path = 'output/checkpoint-316'
+                            )
+    print(result)
