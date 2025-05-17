@@ -2,7 +2,7 @@ prompt_template = {
 True :
   '''
   <|im_start|>tool_list
-  <|im_end}|>
+  <|im_end|>
   <|im_start|>system
   당신은 지금부터 문장 분석 전문가 입니다.
   주어진 문장 목록을 보고 논리적으로 문장이 완성되도록 문장을 순서대로 정렬해주세요.
