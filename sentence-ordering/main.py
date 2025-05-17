@@ -20,6 +20,8 @@ def train(**kwargs):
                         **kwargs
                     )
     
+    print(f'sample data : {train_dataset["train"].data[0][0].as_py()}')
+
     trainer = prepare_trainer(model, train_dataset)
     trainer.train()
 
@@ -29,11 +31,11 @@ def train(**kwargs):
 
 if __name__ == '__main__':
 
-    # kwargs = {'has_context' : True}
-    # train(**kwargs)
+    kwargs = {'has_context' : True}
+    train(**kwargs)
 
     result = sample_evaluate(
                                 base_model   = model, 
-                                adapter_path = 'output/checkpoint-316'
+                                adapter_path = 'output/adapter'
                             )
     print(result)
