@@ -10,7 +10,7 @@ IS_CUDA      = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 model_name = "naver-hyperclovax/HyperCLOVAX-SEED-Text-Instruct-0.5B"
 model      = AutoModelForCausalLM.from_pretrained(model_name).to(IS_CUDA)
-tokenizer  = AutoTokenizer.from_pretrained(model_name) 
+tokenizer  = AutoTokenizer.from_pretrained(model_name)
 
 
 def train(**kwargs):
@@ -20,9 +20,10 @@ def train(**kwargs):
                         **kwargs
                     )
     
-    print(f'sample data : {train_dataset["train"].data[0][0].as_py()}')
+    print(f'sample prompt : {train_dataset["train"].data[0][0].as_py()}')
+    print(f'sample target : {train_dataset["train"].data[1][0].as_py()}')
 
-    trainer = prepare_trainer(model, train_dataset)
+    trainer = prepare_trainer(model, train_dataset, tokenizer)
     trainer.train()
 
     trainer.save_model('output/adapter')
@@ -34,8 +35,4 @@ if __name__ == '__main__':
     kwargs = {'has_context' : True}
     train(**kwargs)
 
-    result = sample_evaluate(
-                                base_model   = model, 
-                                adapter_path = 'output/adapter'
-                            )
-    print(result)
+    sample_evaluate(base_model = model, adapter_path = 'output/adapter')

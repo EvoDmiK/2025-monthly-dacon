@@ -1,5 +1,6 @@
 **/**/merged_model
 **/**/__pycache__
+**/**/models/
 **/**/output/
 **/wandb/*
 **/.env

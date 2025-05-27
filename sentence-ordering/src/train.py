@@ -27,11 +27,11 @@ def prepare_config(
                     ):
   #* MoRA 타입 6으로 하면 에러나는 부분 수정
   lora_config = LoraConfig(
-              r              = 32, 
+              r              = 64, 
               bias           = "none",
               task_type      = 'CAUSAL_LM',
-              lora_alpha     = 64,
-              lora_dropout   = 0.05,
+              lora_alpha     = 128,
+              lora_dropout   = 0.01,
               target_modules = modules,
           )
   
@@ -39,20 +39,20 @@ def prepare_config(
         fp16                        = True,
         optim                       = 'grokadamw',
         report_to                   = 'wandb',
-        num_train_epochs            = 15,
+        num_train_epochs            = 1_000,
         output_dir                  = 'output',
         eval_steps                  = 5,
-        save_steps                  = 10, 
+        save_steps                  = 5, 
+        packing                     = True,
         push_to_hub                 = False,
-        weight_decay                = 0.05,
-        learning_rate               = 3e-5,
+        weight_decay                = 0.01,
+        learning_rate               = 1e-7,
         eval_strategy               = 'epoch',
-        logging_steps               = 5,
+        logging_steps               = 100,
         save_strategy               = 'epoch',
         dataset_text_field          = 'prompt', 
-        lr_scheduler_type           = 'linear',
+        lr_scheduler_type           = 'cosine',
         load_best_model_at_end      = True,
-        packing=True,
         per_device_eval_batch_size  = 2,
         per_device_train_batch_size = 2,
         gradient_accumulation_steps = 4,
@@ -61,8 +61,9 @@ def prepare_config(
 
 
 def prepare_trainer(
-                  model: "AutoModelForCausalLM", 
-                  dataset: 'datasets.Dataset'
+                  model    : "AutoModelForCausalLM", 
+                  dataset  : 'datasets.Dataset',
+                  tokenizer: "AutoTokenizer"
                 ):
 
   model.gradient_checkpointing_enable()
@@ -73,10 +74,10 @@ def prepare_trainer(
   lora_config, train_config = prepare_config(modules)
   model                     = get_peft_model(model, lora_config)
 
-  callbacks = [EarlyStoppingCallback(early_stopping_patience = 3)]
-
+  callbacks   = [EarlyStoppingCallback(early_stopping_patience = 10)]
   trainer = SFTTrainer(
       model              = model, 
+      processing_class   = tokenizer,
       train_dataset      = dataset['train'],
       eval_dataset       = dataset['test'],
       args               = train_config,
